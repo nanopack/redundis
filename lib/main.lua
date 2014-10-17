@@ -7,34 +7,66 @@ local redis = require('../deps/luvit-redis')
 
 local Main = Emitter:extend()
 
-function Main:initialize()
+function Main:initialize(opts)
 	self.enabled = false
 	self.current_master = nil
-	self.sentinal = redis:new('127.0.0.1',26379)
-	self.sentinal:on('error',function(err)
+	self.opts = opts
+	self:normalize_opts()
+	self.sentinel = redis:new(self.opts.sentinel_ip,self.opts.sentinel_port)
+
+	self.sentinel:on('error',function(err)
 		p(err)
 	end)
-	self:on('master',self.handle_master)
-	self:on('refresh',self.verify_master)
+
+	-- we start up the server socket
+	self.server = net.createServer(function(client)
+		self:handle_connection(client)
+	end)
+	self.server:listen(self.opts.listen_port,self.opts.listen_ip)
+
+end
+
+function add_default(key,value,object)
+	if not object[key] then
+		object[key] = value 
+	end
+end
+
+function Main:normalize_opts()
+	if not self.opts then
+		self.opts = {}
+	end
+
+	local opts = self.opts
+	add_default('sentinel_ip','127.0.0.1',opts)
+	add_default('sentinel_port',26379,opts)
+	add_default('listen_ip','127.0.0.1',opts)
+	add_default('listen_port',6379,opts)
+
+	add_default('monitor_name','test',opts)
+	add_default('not_ready_timeout',5000,opts)
+	add_default('sentinel_poll_timeout',1000,opts)
+	add_default('master_wait_timeout',1000,opts)
 end
 
 function Main:check_master()
-	self.sentinal.redisNativeClient:command('SENTINEL','get-master-addr-by-name','test',function(err,dest,...)
+	-- SENTINEL is not a supported command, so we bypass the builtin stuff
+	self.sentinel.redisNativeClient:command('SENTINEL','get-master-addr-by-name',self.opts.monitor_name,function(err,dest,...)
 		if err then
-			p('unable to talk to sentinal: ',err)
-			timer.setTimeout(5000,process.exit,1)
+			p('unable to talk to sentinel: ',err)
+			timer.setTimeout(self.opts.not_ready_timeout,self.check_master,self)
 			return
 		end
 		if not dest then
-			p('Local sentinal instance is not ready.')
-			timer.setTimeout(5000,process.exit,1)
+			p('Local sentinel instance is not ready.')
+			timer.setTimeout(self.opts.not_ready_timeout,self.check_master,self)
 			return
 		end
 
-		-- convert to an integer
+		-- convert port to an integer
 		dest[2] = 0 + dest[2]
-		self:emit('master',self,dest)
-		timer.setTimeout(1000,self.check_master,self)
+		self:handle_master(dest)
+		timer.setTimeout(self.opts.sentinel_poll_timeout,self.check_master,self)
 	end)
 end
 
@@ -48,38 +80,42 @@ end
 
 function Main:handle_master(master)
 	if self:need_refresh(master) then
-		if not self.current_master then
-			p('starting up socket server')
-			local main = self
-			self.server = net.createServer(function(client)
-				main:handle_connection(client)
-			end)
-			self.server:listen(2000)
-		else 
-			p('refresing client connections')
-		end
+		p('refresing client connections')
+
+		-- we disable all future connections
+		self.enabled = false
+		
 		self.current_master = master
-		self:emit('refresh',self)
+		self:emit('begin-refresh',self)
+		self:verify_master()
 	end
 end
 
 function Main:verify_master()
 	local con = self.current_master
 	local check = redis:new(con[1],con[2])
+
+	-- we need to check if the new master has become a master node yet
 	check:on('error',function() end)
+
+	-- we use INFO instead of ROLE because ROLE is not a supported 
+	-- command in all versions of redis
 	check.redisNativeClient:command('INFO','replication',function(err,res)
 		check:disconnect()
 		if err then
 			p('unable to verify master')
-			timer.setTimeout(1500,self.verify_master,self)
+			timer.setTimeout(self.opts.master_wait_timeout,self.verify_master,self)
 		else
 			local role = string.match(res,'role:master')
 			if not role then
 				p('master not ready yet')
-				timer.setTimeout(1000,self.verify_master,self)
+				timer.setTimeout(self.opts.master_wait_timeout,self.verify_master,self)
 			elseif role then
 				p('master is ready at ',con[1],con[2])
+
+				-- we enable all future connections
 				self.enabled = true
+				self:emit('refresh',self)
 			end
 		end
 	end)
@@ -88,32 +124,32 @@ end
 
 function Main:handle_connection(client)
 	if self.enabled then
-		client:resume()
 		local con = self.current_master
 		local server
 		server = net.createConnection(con[2],con[1])
 
-		p('piping connection')
-
+		-- just pipe it all
 		client:pipe(server)
 		server:pipe(client)
 
-		self:once('refresh',function()
+		-- once the failover has happened, we close all connections
+		self:once('begin-refresh',function()
 			client:destroy()
 		end)
+
 	else
+
+		-- if we are currently waiting for a failover to complete
+		-- pause all connections and wait for the refresh to happen
+
 		client:pause()
 		p('holding connection until it is ready')
-		timer.setTimeout(1000,self.handle_connection,self,client)
+		self:once('refresh',function()
+			client:resume()
+			self:handle_connection(client)
+		end)
+
 	end
 end
 
-local start = Main:new()
-
-process:on('error', function(err)
-	p(err)
-end)
-
-start:check_master()
-
-return 1
+return Main

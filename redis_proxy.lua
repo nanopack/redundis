@@ -9,5 +9,37 @@
 -- @end
 -- Created :   17 Oct 2014 by Daniel Barney <daniel@pagodabox.com>
 ---------------------------------------------------------------------
+local JSON  = require("json")
+local fs = require('fs')
 
-require('./lib/main.lua')
+local Main = require('./lib/main.lua')
+
+-- set up default location for the config file
+local configPath = "/opt/local/etc/redis_server/redis_server.conf"
+
+-- it can be specified with the first parameter to the command
+if process.argv[1] then
+	configPath = process.argv[1]
+end
+
+
+-- load config file
+fs.readFile(configPath,function(err,data)
+	
+	local main
+
+	-- the config file is completely optional
+  if not err then
+    local opts = JSON.parse(data)
+    main = Main:new(opts)
+  else
+    main = Main:new()
+  end
+
+  main:check_master()
+
+  process:on('error', function(err)
+    p("global error: ",{err=err})
+  end)
+
+end)

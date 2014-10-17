@@ -1,8 +1,54 @@
 # redis-proxy 
 
-Redis-Proxy is a smart sentinal aware proxy for redis that allows redis clients to not care about failover of the redis master node. 
+Redis-Proxy is a smart sentinel aware proxy for redis that allows redis clients to not care about failover of the redis master node. 
 
 Connections are automatically forwarded to the master redis node, and when the master node fails over, clients are disconnected and reconnected to the new master node.
 
+Redis-Proxy was written in luvit because of its near c speed, and because it uses a very small amount of memory.
+
 
 ## WORK IN PROGRESS
+
+# Config File
+
+The default location for the config file is `/opt/local/etc/redis_proxy/redis_proxy.conf`. This can be changed by passing the new location in as the first paramter to the redis_proxy command: `redis_proxy.lua ./path/to/file.config`.
+
+### Config Params
+
+
+#### sentinel_ip
+- default '127.0.0.1'
+- ip for sentinel connection
+
+#### sentinel_port
+- default 26379
+- port for sentinel connection
+
+#### listen_ip
+- default '127.0.0.1'
+- ip for redis_proxy to listen for clients
+
+#### listen_port
+- default 6379
+- port for redis_proxy to listen for clients
+
+#### monitor_name
+- default 'test'
+- name of server to proxy for, this is defined in the sentinal.conf file.
+
+#### not_ready_timeout
+- default 5000
+- retry timeout for sentinels not being ready
+
+#### sentinel_poll_timeout
+- default 1000
+- polling interval to check for a new master
+
+#### master_wait_timeout
+- default 1000
+- how long to wait before checking if the new master is ready
+
+
+# Limitations
+
+Currently only connecting to one sentinel is supported. It could be exteneded in the future to connect to a different sentinel incase of sentinel failure, but right now this is not needed.

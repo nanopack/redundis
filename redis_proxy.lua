@@ -15,7 +15,7 @@ local fs = require('fs')
 local Main = require('./lib/main.lua')
 
 -- set up default location for the config file
-local configPath = "/opt/local/etc/redis_server/redis_server.conf"
+local configPath = "/opt/local/etc/redis_proxy/redis_proxy.conf"
 
 -- it can be specified with the first parameter to the command
 if process.argv[1] then

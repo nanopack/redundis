@@ -132,9 +132,16 @@ function Main:handle_connection(client)
 		client:pipe(server)
 		server:pipe(client)
 
-		-- once the failover has happened, we close all connections
-		self:once('begin-refresh',function()
+		local fun = function()
 			client:destroy()
+		end
+
+		-- once the failover has happened, we close all connections
+		self:once('begin-refresh',fun)
+
+		-- and if it is just closed, we remove the other handler.
+		self:once('end',function ()
+			self:removeListener(fun)
 		end)
 
 	else

@@ -15,7 +15,8 @@ install-deps:
 	mkdir -p ${DESTDIR}${PREFIX}/redis_proxy/deps/luvit-redis/build
 	mkdir -p ${DESTDIR}${PREFIX}/redis_proxy/deps/luvit-redis/lib
 	for i in deps/luvit-redis/build/redis.luvit deps/luvit-redis/lib/commands.lua deps/luvit-redis/lib/init.lua deps/luvit-redis/package.lua; \
-		cp $$i ${DESTDIR}${PREFIX}/$$i
+		do; \
+		cp $$i ${DESTDIR}${PREFIX}/redis_proxy/$$i; \
 	done
 
 install-libs:

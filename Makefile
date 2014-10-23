@@ -20,5 +20,5 @@ install-deps:
 	done
 
 install-libs:
-	mkdir -p ${DESTDIR}${PREFIX}/redis_proxy/libs
-	cp libs/main.lua ${DESTDIR}${PREFIX}/redis_proxy/libs/main.lua
+	mkdir -p ${DESTDIR}${PREFIX}/redis_proxy/lib
+	cp libs/main.lua ${DESTDIR}${PREFIX}/redis_proxy/lib/main.lua

@@ -132,6 +132,10 @@ function Main:handle_connection(client)
 		client:pipe(server)
 		server:pipe(client)
 
+		-- don't really care if there are errors in the streams
+		client:once('error',function() end)
+		server:once('error',function() end)
+
 		local fun = function()
 			client:destroy()
 		end

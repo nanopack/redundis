@@ -1,3 +1,6 @@
+[![redundis logo](http://nano-assets.gopagoda.io/readme-headers/redundis.png)](http://nanobox.io/open-source#redundis)
+[![Build Status](https://travis-ci.org/nanopack/redundis.svg)](https://travis-ci.org/nanopack/redundis)
+
 # Redundis
 
 Redis high-availability cluster using Sentinel to transparently proxy connections to the active primary member.
@@ -55,3 +58,5 @@ The default location for the config file is `/opt/local/etc/redundis/redundis.co
 # Limitations
 
 Currently only connecting to one sentinel is supported. It could be extended in the future to connect to a different sentinel incase of sentinel failure, but right now this is not needed.
+
+[![redundis logo](http://nano-assets.gopagoda.io/open-src/nanobox-open-src.png)](http://nanobox.io/open-source)

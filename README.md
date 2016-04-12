@@ -64,4 +64,8 @@ You can specify a config file by using `redundis -c config.json`
 
 Currently only connecting to one sentinel is supported. It could be extended in the future to connect to a different sentinel incase of sentinel failure, but right now this is not needed.
 
+## Todo
+
+- Handle network partitions
+
 [![redundis logo](http://nano-assets.gopagoda.io/open-src/nanobox-open-src.png)](http://nanobox.io/open-source)

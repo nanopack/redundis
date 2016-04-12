@@ -46,7 +46,7 @@ func handleConnection(srv *net.Conn) {
 	config.Log.Debug("Piping server input to user...")
 	go pipe(srv, &s, "Server")
 
-	// dial the client
+	// dial the endpoint
 	cli, err := dial(srv)
 	if err != nil {
 		config.Log.Error("Failed to contact endpoint - %v", err)

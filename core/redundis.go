@@ -57,13 +57,11 @@ func getMaster() (string, error) {
 	config.Log.Debug("Master address: '%v'", masterAddr)
 
 	// wait for redis to transition to master
-	// if err = verifyMaster(masterAddr, config.SentinelPassword); err != nil {
-	if err = verifyMaster("10.0.2.199:6380", config.SentinelPassword); err != nil {
+	if err = verifyMaster(masterAddr, config.SentinelPassword); err != nil {
 		return "", fmt.Errorf("Could not verify master - %v", err)
 	}
 
-	// return masterAddr, nil
-	return "10.0.2.199:6380", nil
+	return masterAddr, nil
 }
 
 // verifyMaster verifies that the decided master node has fully transitioned

@@ -1,61 +1,66 @@
-[![redundis logo](http://nano-assets.gopagoda.io/readme-headers/redundis.png)](http://nanobox.io/open-source#redundis)
+[![redundis logo](http://nano-assets.gopagoda.io/readme-headers/redundis.png)](http://nanobox.io/open-source#redundis)  
 [![Build Status](https://travis-ci.org/nanopack/redundis.svg)](https://travis-ci.org/nanopack/redundis)
+[![GoDoc](https://godoc.org/github.com/nanopack/redundis?status.svg)](https://godoc.org/github.com/nanopack/redundis)
 
 # Redundis
 
-Redis high-availability cluster using Sentinel to transparently proxy connections to the active primary member.
+Redis high-availability cluster using Sentinel to transparently proxy connections to the active primary member - with full redis capability.
 
-Redundis is a smart sentinel aware proxy for redis that allows redis clients to not care about failover of the redis master node.
+Redundis is a smart, sentinel aware proxy for redis that allows redis clients to not care about failover of the redis master node.
 
 Connections are automatically forwarded to the master redis node, and when the master node fails over, clients are disconnected and reconnected to the new master node.
-
-Redundis was written in luvit because of its near c speed, and because it uses a very small amount of memory.
-
 
 ## Status
 
 Complete/Stable
 
-# Config File
+## Quickstart
 
-The default location for the config file is `/opt/local/etc/redundis/redundis.conf`. This can be changed by passing the new location in as the first parameter to the redundis command: `redundis.lua ./path/to/file.config`.
+Simply run `redundis` to start redundis with the default settings or `redundis -c config.json` to use config from a file.
 
-### Config Params
+## Config
 
-#### sentinel_ip
-- default '127.0.0.1'
-- ip for sentinel connection
+Redundis can be configured via a config file, or command line flags. Any configuration in a specified config file will overwrite any cli flags.
 
-#### sentinel_port
-- default 26379
-- port for sentinel connection
+### Config Flags
 
-#### listen_ip
-- default '127.0.0.1'
-- ip for redundis to listen for clients
+`redundis -h` will show usage and a list of flags:
 
-#### listen_port
-- default 6379
-- port for redundis to listen for clients
+```
+redundis redis-proxy
 
-#### monitor_name
-- default 'test'
-- name of server to proxy for, this is defined in the sentinal.conf file.
+Usage:
+  redundis [flags]
 
-#### not_ready_timeout
-- default 5000
-- retry timeout for sentinels not being ready
+Flags:
+  -c, --config-file="": Config file location for redundis
+  -l, --listen-address="127.0.0.1:6379": Redundis listen address
+  -L, --log-level="info": Log level [fatal, error, info, debug, trace]
+  -t, --master-wait=30: Time to wait for node to transition to master (seconds)
+  -m, --monitor-name="test": Name of sentinel monitor
+  -r, --ready-wait=30: Time to wait to connect to redis|sentinel (seconds)
+  -s, --sentinel-address="127.0.0.1:26379": Address of sentinel node
+  -p, --sentinel-password="": Sentinel password
+  -w, --sentinel-wait=10: Time to wait for sentinel to respond (seconds)
+```
 
-#### sentinel_poll_timeout
-- default 1000
-- polling interval to check for a new master
+### Config File
 
-#### master_wait_timeout
-- default 1000
-- how long to wait before checking if the new master is ready
+You can specify a config file by using `redundis -c config.json`
+```json
+{
+  "listen-address": "127.0.0.1:6379",
+  "sentinel-address": "127.0.0.1:26379",
+  "sentinel-password": "",
+  "monior-name": "test",
+  "maser-wait": 30,
+  "ready-wait": 30,
+  "sentinel-wait": 10,
+  "log-level": "info"
+}
+```
 
-
-# Limitations
+## Limitations
 
 Currently only connecting to one sentinel is supported. It could be extended in the future to connect to a different sentinel incase of sentinel failure, but right now this is not needed.
 

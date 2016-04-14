@@ -16,7 +16,7 @@ import (
 
 var (
 	// masterAddr is the cached address of the master node
-	masterAddr = "127.0.0.1:6379"
+	masterAddr = ""
 
 	// discard is a dummy writer to aid in determining master node disconnections
 	discard io.Writer = devNull(0)
@@ -56,6 +56,9 @@ func Start() error {
 
 // getMaster returns the address of the cached master node
 func getMaster() (string, error) {
+	if masterAddr == "" {
+		return "", fmt.Errorf("Address of master unknown")
+	}
 	return masterAddr, nil
 }
 
@@ -93,7 +96,7 @@ func updateMaster() error {
 	// connect to sentinel in order to query for the master address
 	r, err := redis.DialURL("redis://"+config.SentinelAddress, redis.DialConnectTimeout(config.TimeoutNotReady), redis.DialReadTimeout(config.TimeoutSentinelPoll), redis.DialPassword(config.SentinelPassword))
 	if err != nil {
-		return fmt.Errorf("Failed to reach redis - %v", err)
+		return fmt.Errorf("Failed to reach sentinel - %v", err)
 	}
 
 	// retrieve the master redis address

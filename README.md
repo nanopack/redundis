@@ -60,9 +60,22 @@ You can specify a config file by using `redundis -c config.json`
 }
 ```
 
+## Redis Setup
+
+Each redis node will be configured as follows:
+```
++----------+
+| redis    | - redis-server running on port 6380 with sentinel configured
+| sentinel | - sentinel configured and started (default listen port of 26379)
+| redundis | - proxies incoming connections to master redis (determined by talking to local sentinel)
+| flip*    | - manages cluster vip that users connect to
++----------+
+* = optional
+```
+
 ## Limitations
 
-Currently only connecting to one sentinel is supported. It could be extended in the future to connect to a different sentinel incase of sentinel failure, but right now this is not needed.
+Currently, only connecting to one sentinel is supported. It could be extended in the future to connect to a different sentinel incase of sentinel failure, but right now this is not needed.
 
 ## Todo
 

@@ -50,7 +50,8 @@ func handleConnection(srv *net.Conn) {
 	cli, err := dial(srv)
 	if err != nil {
 		config.Log.Error("Failed to contact endpoint - %v", err)
-		(*srv).Write([]byte(fmt.Sprintf("Failed to contact endpoint - %v", err)))
+		// write back to redis client the error (http://redis.io/topics/protocol#resp-errors)
+		(*srv).Write([]byte(fmt.Sprintf("-ERR Failed to contact endpoint - %v", err)))
 		(*srv).Close()
 		return
 	}

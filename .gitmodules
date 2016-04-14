@@ -1,3 +1,0 @@
-[submodule "deps/luvit-redis"]
-	path = deps/luvit-redis
-	url = git@github.com:tadeuszwojcik/luvit-redis.git

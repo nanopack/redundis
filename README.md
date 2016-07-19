@@ -53,7 +53,7 @@ You can specify a config file by using `redundis -c config.json`
   "sentinel-address": "127.0.0.1:26379",
   "sentinel-password": "",
   "monior-name": "test",
-  "maser-wait": 30,
+  "master-wait": 30,
   "ready-wait": 30,
   "sentinel-wait": 10,
   "log-level": "info"

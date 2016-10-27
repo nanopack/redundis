@@ -62,7 +62,7 @@ func ReadConfigFile(configFile string) error {
 	viper.SetDefault("sentinel-address", SentinelAddress)
 	viper.SetDefault("sentinel-password", SentinelPassword)
 	viper.SetDefault("monior-name", MonitorName)
-	viper.SetDefault("maser-wait", masterWait)
+	viper.SetDefault("master-wait", masterWait)
 	viper.SetDefault("ready-wait", notReady)
 	viper.SetDefault("sentinel-wait", sentinelPoll)
 	viper.SetDefault("log-level", LogLevel)
@@ -81,7 +81,7 @@ func ReadConfigFile(configFile string) error {
 	SentinelAddress = viper.GetString("sentinel-address")
 	SentinelPassword = viper.GetString("sentinel-password")
 	MonitorName = viper.GetString("monior-name")
-	TimeoutMasterWait = time.Duration(viper.GetInt("maser-wait")) * time.Second
+	TimeoutMasterWait = time.Duration(viper.GetInt("master-wait")) * time.Second
 	TimeoutNotReady = time.Duration(viper.GetInt("ready-wait")) * time.Second
 	TimeoutSentinelPoll = time.Duration(viper.GetInt("sentinel-wait")) * time.Second
 	LogLevel = viper.GetString("log-level")

@@ -52,7 +52,7 @@ You can specify a config file by using `redundis -c config.json`
   "listen-address": "127.0.0.1:6379",
   "sentinel-address": "127.0.0.1:26379",
   "sentinel-password": "",
-  "monior-name": "test",
+  "monitor-name": "test",
   "master-wait": 30,
   "ready-wait": 30,
   "sentinel-wait": 10,

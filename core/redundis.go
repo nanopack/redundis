@@ -94,7 +94,7 @@ func updateMaster() error {
 	config.Log.Debug("Contacting sentinel for address of master...")
 
 	// connect to sentinel in order to query for the master address
-	r, err := redis.DialURL("redis://"+config.SentinelAddress, redis.DialConnectTimeout(config.TimeoutNotReady), redis.DialReadTimeout(config.TimeoutSentinelPoll), redis.DialPassword(config.SentinelPassword))
+	r, err := redis.DialURL("redis://"+config.SentinelAddress, redis.DialConnectTimeout(config.TimeoutNotReady), redis.DialReadTimeout(config.TimeoutSentinelPoll))
 	if err != nil {
 		return fmt.Errorf("Failed to reach sentinel - %v", err)
 	}
@@ -113,7 +113,7 @@ func updateMaster() error {
 	config.Log.Debug("Master address: '%v'", masterAddr)
 
 	// wait for redis to transition to master
-	if err = verifyMaster(masterAddr, config.SentinelPassword); err != nil {
+	if err = verifyMaster(masterAddr, config.MasterPassword); err != nil {
 		return fmt.Errorf("Could not verify master - %v", err)
 	}
 

@@ -11,10 +11,10 @@ import (
 )
 
 var (
-	ListenAddress    = "127.0.0.1:6379"  // Redundis listen address
-	SentinelAddress  = "127.0.0.1:26379" // Address of sentinel node
-	SentinelPassword = ""                // Sentinel password
-	MonitorName      = "test"            // Name of sentinel monitor
+	ListenAddress   = "127.0.0.1:6379"  // Redundis listen address
+	SentinelAddress = "127.0.0.1:26379" // Address of sentinel node
+	MasterPassword  = ""                // Redis Master password
+	MonitorName     = "test"            // Name of sentinel monitor
 
 	masterWait   = 30
 	notReady     = 30
@@ -36,7 +36,7 @@ func init() {
 func AddFlags(cmd *cobra.Command) {
 	cmd.Flags().StringVarP(&ListenAddress, "listen-address", "l", ListenAddress, "Redundis listen address")
 	cmd.Flags().StringVarP(&SentinelAddress, "sentinel-address", "s", SentinelAddress, "Address of sentinel node")
-	cmd.Flags().StringVarP(&SentinelPassword, "sentinel-password", "p", SentinelPassword, "Sentinel password")
+	cmd.Flags().StringVarP(&MasterPassword, "master-password", "p", MasterPassword, "Master password")
 	cmd.Flags().StringVarP(&MonitorName, "monitor-name", "m", MonitorName, "Name of sentinel monitor")
 
 	// timeouts
@@ -60,7 +60,7 @@ func ReadConfigFile(configFile string) error {
 	// Set defaults to whatever might be there already
 	viper.SetDefault("listen-address", ListenAddress)
 	viper.SetDefault("sentinel-address", SentinelAddress)
-	viper.SetDefault("sentinel-password", SentinelPassword)
+	viper.SetDefault("master-password", MasterPassword)
 	viper.SetDefault("monitor-name", MonitorName)
 	viper.SetDefault("master-wait", masterWait)
 	viper.SetDefault("ready-wait", notReady)
@@ -79,7 +79,7 @@ func ReadConfigFile(configFile string) error {
 	// Set values. Config file will override commandline
 	ListenAddress = viper.GetString("listen-address")
 	SentinelAddress = viper.GetString("sentinel-address")
-	SentinelPassword = viper.GetString("sentinel-password")
+	MasterPassword = viper.GetString("master-password")
 	MonitorName = viper.GetString("monitor-name")
 	TimeoutMasterWait = time.Duration(viper.GetInt("master-wait")) * time.Second
 	TimeoutNotReady = time.Duration(viper.GetInt("ready-wait")) * time.Second
